@@ -3,98 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Модель Атома</title>
+    <title>3D Квантова Модель Атома</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #030308;
+            background-color: #070914; /* Зробили загальний фон трохи світлішим */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            opacity: 0;
+            transition: opacity 1.8s ease-in-out;
         }
 
+        body.loaded {
+            opacity: 1;
+        }
+
+        /* Підказка у верхньому правому кутку */
         #info {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 25px;
+            right: 25px;
             color: #ffffff;
-            background: rgba(10, 10, 20, 0.85);
-            padding: 12px 24px;
-            border-radius: 12px;
+            background: rgba(15, 20, 35, 0.85);
+            padding: 10px 18px;
+            border-radius: 10px;
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            text-align: center;
+            border: 1px solid rgba(0, 255, 204, 0.35);
+            text-align: right;
             pointer-events: none;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            z-index: 10;
         }
 
         h1 {
-            margin: 0 0 4px 0;
-            font-size: 18px;
-            letter-spacing: 1.5px;
+            margin: 0 0 2px 0;
+            font-size: 15px;
+            letter-spacing: 1.2px;
             color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
         }
 
         p {
             margin: 0;
-            font-size: 11px;
-            color: #aaa;
+            font-size: 10px;
+            color: #ccc;
         }
 
+        /* Інформаційний блок зліва внизу */
         #summary {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 25px;
+            left: 25px;
             color: #ffffff;
-            background: rgba(10, 10, 20, 0.85);
-            padding: 15px 25px;
-            border-radius: 12px;
+            background: rgba(15, 20, 35, 0.88);
+            padding: 18px 22px;
+            border-radius: 14px;
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            max-width: 520px;
+            border: 1px solid rgba(0, 255, 204, 0.4);
+            max-width: 440px;
             width: 90%;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.15);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 10;
         }
 
-        #summary h3 {
-            margin: 0 0 8px 0;
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-text h3 {
+            margin: 0;
             font-size: 13px;
             color: #00ffcc;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        #summary ul {
-            margin: 0;
-            padding-left: 18px;
-            font-size: 12px;
-            color: #ccc;
-            line-height: 1.5;
+        /* Кнопка-стрілка скидання вигляду */
+        #reset-btn {
+            background: rgba(0, 255, 204, 0.15);
+            border: 1px solid #00ffcc;
+            color: #00ffcc;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.25);
+            flex-shrink: 0;
         }
 
-        #summary li {
-            margin-bottom: 4px;
+        #reset-btn:hover {
+            background: rgba(0, 255, 204, 0.35);
+            box-shadow: 0 0 22px rgba(0, 255, 204, 0.7);
+            transform: scale(1.1);
+        }
+
+        .summary-text ul {
+            margin: 0;
+            padding-left: 16px;
+            font-size: 11px;
+            color: #ddd;
+            line-height: 1.45;
+        }
+
+        .summary-text li {
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
     <div id="info">
-        <h1>МОДЕЛЬ АТОМА</h1>
-        <p>Використовуйте мишу для обертання та наближення</p>
+        <h1>КВАНТОВА МОДЕЛЬ</h1>
+        <p>Клікніть та тягніть для обертання</p>
     </div>
 
     <div id="summary">
-        <h3>Будова атома:</h3>
-        <ul>
-            <li><strong>Ядро:</strong> Центральна частина, що складається з протонів та нейтронів.</li>
-            <li><strong>Електрони:</strong> Частинки, що рухаються навколо ядра по орбітах.</li>
-        </ul>
+        <div class="summary-header">
+            <div class="summary-text">
+                <h3>Квантова будова атома</h3>
+            </div>
+            <button id="reset-btn" title="Плавне повернення до вихідного вигляду" onclick="startResetAnimation()">&#8592;</button>
+        </div>
+        <div class="summary-text">
+            <ul>
+                <li><strong>Надміцне ядро:</strong> Скупчення нуклонів (протонів і нейтронів), що утримуються потужними ядерними силами та містять майже всю масу системи.</li>
+                <li><strong>Хвильова функція (Орбіталі):</strong> Електрони не рухаються за чіткими траєкторіями, а утворюють хмари ймовірності знаходження завдяки квантовим станам.</li>
+                <li><strong>Квантові числа:</strong> Визначають енергетичні рівні, момент імпульсу та просторову орієнтацію електронної оболонки.</li>
+            </ul>
+        </div>
     </div>
 
-    <!-- Підключаємо необхідні бібліотеки Three.js та ефекти свічення (Bloom) -->
+    <!-- Підключаємо Three.js та бібліотеки -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
@@ -103,79 +153,142 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
 
     <script>
-        // Ініціалізація сцени
+        window.addEventListener('load', () => {
+            setTimeout(() => document.body.classList.add('loaded'), 100);
+        });
+
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x030308, 0.03);
+        scene.fog = new THREE.FogExp2(0x070914, 0.015); // Зробили туман м'якшим і світлішим
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 4, 12);
+        
+        const defaultCameraPos = new THREE.Vector3(0, 4, 12);
+        const defaultTarget = new THREE.Vector3(0, 0, 0);
+        
+        camera.position.set(0, 8, 24);
+        let introProgress = 0;
+        let isIntro = true;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 1.45; // Збільшили загальну експозицію для світлішої картинки
         document.body.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxDistance = 30;
-        controls.minDistance = 3;
+        controls.dampingFactor = 0.04;
+        controls.minDistance = 5;   
+        controls.maxDistance = 22;  
+        controls.enablePan = false; 
+        controls.enabled = false;
 
-        // Пост-обробка для неонового свічення (Bloom)
+        let isResetting = false;
+        let resetProgress = 0;
+        let startPos = new THREE.Vector3();
+        let startTarget = new THREE.Vector3();
+
+        function startResetAnimation() {
+            if (isResetting || isIntro) return;
+            startPos.copy(camera.position);
+            startTarget.copy(controls.target);
+            resetProgress = 0;
+            isResetting = true;
+        }
+
         const renderScene = new THREE.RenderPass(scene, camera);
         const bloomPass = new THREE.UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            1.5,  // Інтенсивність свічення
-            0.4,  // Радіус
-            0.85  // Поріг
+            1.8,  
+            0.45,  
+            0.7  
         );
 
         const composer = new THREE.EffectComposer(renderer);
         composer.addPass(renderScene);
         composer.addPass(bloomPass);
 
-        // Освітлення студійного рівня
-        const ambientLight = new THREE.AmbientLight(0x222244, 1.5);
+        // Збільшили яскравість фонового світла, щоб простір не був занадто чорним
+        const ambientLight = new THREE.AmbientLight(0x334466, 2.2);
         scene.add(ambientLight);
 
-        const pointLight1 = new THREE.PointLight(0x00ffff, 3, 50);
+        const topLight = new THREE.PointLight(0xaaffff, 4.5, 45);
+        topLight.position.set(0, 15, 0);
+        scene.add(topLight);
+
+        const pointLight1 = new THREE.PointLight(0x00ffff, 4.5, 50);
         pointLight1.position.set(10, 10, 10);
         scene.add(pointLight1);
 
-        const pointLight2 = new THREE.PointLight(0xff0066, 3, 50);
+        const pointLight2 = new THREE.PointLight(0xff0066, 4.5, 50);
         pointLight2.position.set(-10, -10, -10);
         scene.add(pointLight2);
+
+        // --- МАСИВНИЙ УЛЬТРА-ДЗЕРКАЛЬНИЙ 3D ТЕКСТ З ДИНАМІЧНОЮ СВІТЛОВОЮ ХВИЛЕЮ ---
+        let textMaterial;
+        const fontLoader = new THREE.FontLoader();
+        fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_bold.typeface.json', function (font) {
+            const textGeo = new THREE.TextGeometry('ATOM', {
+                font: font,
+                size: 3.8,
+                height: 0.7,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.1,
+                bevelSize: 0.05,
+                bevelSegments: 5
+            });
+
+            textGeo.computeBoundingBox();
+            const centerOffset = -0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
+            textGeo.translate(centerOffset, -1.2, 0);
+
+            // Дзеркальний матеріал з можливістю динамічної зміни емісії (підсвічування)
+            textMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x00ffcc,
+                roughness: 0.03,
+                metalness: 0.98,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.05,
+                emissive: 0x004433,
+                emissiveIntensity: 0.25
+            });
+
+            const textMesh = new THREE.Mesh(textGeo, textMaterial);
+            textMesh.position.set(0, 0, -6);
+            scene.add(textMesh);
+        });
 
         // --- ДЕТАЛІЗОВАНЕ ЯДРО ---
         const nucleusGroup = new THREE.Group();
         
-        // Матеріали з високим ступенем відблиску (MeshPhysicalMaterial для реалістичного глянцю)
         const protonMat = new THREE.MeshPhysicalMaterial({ 
-            color: 0xff0055, 
-            roughness: 0.2, 
-            metalness: 0.1, 
+            color: 0xff004d, 
+            roughness: 0.15, 
+            metalness: 0.2, 
             clearcoat: 1.0, 
-            clearcoatRoughness: 0.1,
+            clearcoatRoughness: 0.05,
             emissive: 0xff0033,
-            emissiveIntensity: 0.3
+            emissiveIntensity: 0.35
         });
 
         const neutronMat = new THREE.MeshPhysicalMaterial({ 
-            color: 0x4488ff, 
-            roughness: 0.4, 
-            metalness: 0.2, 
-            clearcoat: 0.5,
-            emissive: 0x0044aa,
-            emissiveIntensity: 0.2
+            color: 0x3377ff, 
+            roughness: 0.25, 
+            metalness: 0.3, 
+            clearcoat: 0.8,
+            clearcoatRoughness: 0.1,
+            emissive: 0x0044cc,
+            emissiveIntensity: 0.25
         });
 
-        const nucleonGeo = new THREE.SphereGeometry(0.28, 32, 32);
+        const nucleonGeo = new THREE.SphereGeometry(0.28, 48, 48);
 
-        // Щільне укладання ядерних частинок
         for (let i = 0; i < 16; i++) {
             const isProton = i % 2 === 0;
             const mesh = new THREE.Mesh(nucleonGeo, isProton ? protonMat : neutronMat);
@@ -196,15 +309,15 @@
         }
         scene.add(nucleusGroup);
 
-        // --- КВАНТОВІ ОРБІТАЛІ ТА ЕЛЕКТРОНИ ---
+        // --- ОРБІТАЛІ ТА ЕЛЕКТРОНИ ---
         const electronMat = new THREE.MeshPhysicalMaterial({
             color: 0x00ffff,
             emissive: 0x00ffff,
-            emissiveIntensity: 2.0,
-            roughness: 0.1,
-            metalness: 0.8
+            emissiveIntensity: 3.0,
+            roughness: 0.02,
+            metalness: 0.95
         });
-        const electronGeo = new THREE.SphereGeometry(0.1, 24, 24);
+        const electronGeo = new THREE.SphereGeometry(0.12, 32, 32);
 
         const orbitsConfig = [
             { rx: 3.8, rz: 1.8, rotX: 0.4, rotZ: 0.2, speed: 0.006 },
@@ -215,31 +328,27 @@
         const electrons = [];
 
         orbitsConfig.forEach(cfg => {
-            // Створюємо окрему групу для кожної орбіти, щоб вона тримала і лінію, і хмару, і електрон на своїй осі
             const orbitGroup = new THREE.Group();
             orbitGroup.rotation.x = cfg.rotX;
             orbitGroup.rotation.z = cfg.rotZ;
             scene.add(orbitGroup);
 
-            // Лінія орбіти
             const curve = new THREE.EllipseCurve(0, 0, cfg.rx, cfg.rz, 0, 2 * Math.PI, false, 0);
-            const points = curve.getPoints(120);
+            const points = curve.getPoints(130);
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, 0, p.y)));
-            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.25 });
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.45 });
             const orbitLine = new THREE.Line(lineGeo, lineMat);
             orbitGroup.add(orbitLine);
 
-            // Напівпрозора хмара ймовірності навколо орбіти
             const cloudGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(p.x, 0, p.y))), 100, 0.12, 8, true);
             const cloudMat = new THREE.MeshBasicMaterial({
                 color: 0x00ffff,
                 transparent: true,
-                opacity: 0.04,
+                opacity: 0.08,
                 blending: THREE.AdditiveBlending
             });
             orbitGroup.add(new THREE.Mesh(cloudGeo, cloudMat));
 
-            // Електрон
             const electron = new THREE.Mesh(electronGeo, electronMat);
             orbitGroup.add(electron);
 
@@ -251,31 +360,63 @@
             });
         });
 
-        // Фонові частинки (ефект пилу у просторі)
+        // Фонові зірочки (зробили трохи яскравішими)
         const particlesGeo = new THREE.BufferGeometry();
-        const particlesCount = 300;
+        const particlesCount = 700;
         const posArray = new Float32Array(particlesCount * 3);
         for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 25;
+            posArray[i] = (Math.random() - 0.5) * 40;
         }
         particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         const particlesMat = new THREE.PointsMaterial({
-            size: 0.03,
-            color: 0x00ffff,
+            size: 0.07,
+            color: 0xaaeeee,
             transparent: true,
-            opacity: 0.4
+            opacity: 0.9
         });
-        scene.add(new THREE.Points(particlesGeo, particlesMat));
+        const starField = new THREE.Points(particlesGeo, particlesMat);
+        scene.add(starField);
 
-        // Анімація
+        let clock = new THREE.Clock();
+
         function animate() {
             requestAnimationFrame(animate);
 
-            // Плавне обертання ядра та фону
+            let delta = clock.getDelta();
+            let elapsedTime = clock.getElapsedTime();
+
+            // Динамічна світлова хвиля, що періодично пробігає підсвічуванням по 3D тексту
+            if (textMaterial) {
+                // Плавна синусоїдальна пульсація емісії (ефект світлової хвилі)
+                let wave = Math.sin(elapsedTime * 1.5) * 0.5 + 0.5; // значення від 0 до 1
+                textMaterial.emissiveIntensity = 0.2 + wave * 0.6;   // яскравість змінюється від м'якої до яскравої
+            }
+
+            if (isIntro) {
+                introProgress += delta * 0.6;
+                if (introProgress >= 1) {
+                    introProgress = 1;
+                    isIntro = false;
+                    controls.enabled = true;
+                }
+                let easeIntro = 1 - Math.pow(1 - introProgress, 3);
+                camera.position.lerpVectors(new THREE.Vector3(0, 8, 24), defaultCameraPos, easeIntro);
+            } 
+            else if (isResetting) {
+                resetProgress += delta * 1.5;
+                if (resetProgress >= 1) {
+                    resetProgress = 1;
+                    isResetting = false;
+                }
+                let easeT = 1 - Math.pow(1 - resetProgress, 3);
+                camera.position.lerpVectors(startPos, defaultCameraPos, easeT);
+                controls.target.lerpVectors(startTarget, defaultTarget, easeT);
+            }
+
             nucleusGroup.rotation.y += 0.002;
             nucleusGroup.rotation.x += 0.001;
+            starField.rotation.y -= 0.0002;
 
-            // Рух електронів строго по їхній площині (орбіті)
             electrons.forEach(el => {
                 el.progress += el.speed;
                 if (el.progress > 1) el.progress = 0;
@@ -290,7 +431,6 @@
 
         animate();
 
-        // Адаптивність вікна
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
